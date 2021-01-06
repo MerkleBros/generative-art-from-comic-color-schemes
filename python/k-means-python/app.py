@@ -10,8 +10,9 @@ import matplotlib.pyplot as plt
 import cv2
 from sklearn.cluster import KMeans
 
-IMAGES_DIRECTORY = './../../data/images/'
-PLOTS_DIRECTORY = '../../data/plots'
+IMAGES_DIRECTORY = "./../../data/images/"
+PLOTS_DIRECTORY = "../../data/plots"
+
 
 def load_image(path):
     """Load an image using OpenCV
@@ -25,6 +26,7 @@ def load_image(path):
     image = image_rgb.reshape((image_rgb.shape[1] * image_rgb.shape[0], 3))
     return image
 
+
 def fit_k_means(data, number_of_clusters):
     """Perform k-means clustering and return the k-means object
 
@@ -33,10 +35,11 @@ def fit_k_means(data, number_of_clusters):
     :returns: KMeans object from sklearn.cluster.KMeans with clustered data
 
     """
-    k_means = KMeans(n_clusters = number_of_clusters)
+    k_means = KMeans(n_clusters=number_of_clusters)
     k_means.fit(data)
 
     return k_means
+
 
 def plot_k_means_pie_chart(k_means, file_name):
     """Take a k_means object and save a pie chart of color clusters to disk
@@ -58,10 +61,10 @@ def plot_k_means_pie_chart(k_means, file_name):
         centroid_percentages.append(centroid_percentage)
 
     plt.pie(
-            centroid_percentages,
-            colors = np.array(centroids / 255),
-            labels = np.arange(len(centroid_percentages)))
-    # plt.show()
+        centroid_percentages,
+        colors=np.array(centroids / 255),
+        labels=np.arange(len(centroid_percentages)),
+    )
     plt.savefig(file_name)
 
 
@@ -75,13 +78,14 @@ def main(directory, plot_directory):
     """
     paths = listdir(directory)
     for path in paths:
-        image = load_image(path = f"{IMAGES_DIRECTORY}{path}")
+        image = load_image(path=f"{IMAGES_DIRECTORY}{path}")
         # TODO: Currently hardcoded k, save k for each image in json somewhere
         k_means = fit_k_means(image, 8)
         file_stem = Path(path).stem
         plot_k_means_pie_chart(
-            k_means,
-            file_name = f"{plot_directory}/{file_stem}-pie.png")
+            k_means, file_name=f"{plot_directory}/{file_stem}-pie.png"
+        )
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main(IMAGES_DIRECTORY, PLOTS_DIRECTORY)
