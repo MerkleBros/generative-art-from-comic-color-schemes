@@ -109,7 +109,7 @@ def plot_k_means_pie_chart(k_means, file_name):
     """Take a k_means object and save a pie chart of color clusters to disk
 
     :k_means: A fitted KMeans object from sklearn.cluster.KMeans
-    :file_name: File name of the pie chart
+    :file_name: File name of the pie chart str
     :returns: None
 
     """
@@ -163,9 +163,11 @@ def main(directory, plot_directory):
         )
         print(knee)
         k_means = k_means_list[knee - 1 + 2][0]
-        plot_k_means_pie_chart(
-            k_means, file_name=f"{plot_directory}/{file_stem}-pie.png"
-        )
+        for k, i in k_means_list:
+
+            plot_k_means_pie_chart(
+                k, file_name=f"{plot_directory}/{file_stem}-pie-{i}.png"
+            )
 
 
 if __name__ == "__main__":
