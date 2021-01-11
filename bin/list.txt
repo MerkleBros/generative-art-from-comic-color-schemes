@@ -1,0 +1,10 @@
+../data/plots/default-redlands-pie-1.png
+../data/plots/default-redlands-pie-2.png
+../data/plots/default-redlands-pie-3.png
+../data/plots/default-redlands-pie-4.png
+../data/plots/default-redlands-pie-5.png
+../data/plots/default-redlands-pie-6.png
+../data/plots/default-redlands-pie-7.png
+../data/plots/default-redlands-pie-8.png
+../data/plots/default-redlands-pie-9.png
+../data/plots/default-redlands-pie-10.png
