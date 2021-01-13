@@ -130,6 +130,7 @@ def plot_k_means_pie_chart(k_means, file_name):
         labels=np.arange(len(centroid_percentages)),
     )
     plt.savefig(file_name)
+    plt.clf()
 
 
 def main(directory, plot_directory):
