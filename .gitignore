@@ -1,3 +1,5 @@
 public/js/p5.js
 .vim/
 python/k-means-python/venv
+data/plots/*
+!data/plots/output-grid.jpg
