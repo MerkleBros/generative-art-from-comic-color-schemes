@@ -6,14 +6,16 @@ Functions for k-means color clustering on images
 from os import listdir
 from pathlib import Path
 from typing import List, Tuple
+import json
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
 from sklearn.cluster import KMeans
 from kneed import KneeLocator
 
-IMAGES_DIRECTORY = "./../../data/images/"
+IMAGES_DIRECTORY = "../../data/images/"
 PLOTS_DIRECTORY = "../../data/plots"
+SAVED_COLOR_CLUSTERS_FILE = "../../data/colors.json"
 
 
 def load_image(path):
@@ -77,6 +79,64 @@ def get_numbers_of_clusters_and_inertias(
     return (x, y)
 
 
+def save_k_means_json(
+    k_means: List, image_path: Path, file_path: Path = Path("../../data/colors.json")
+):
+    """Save all fitted color clusters for an image to a json file
+    The JSON schema in file_path should be as below where
+    image_name is the relative path to the image file
+    number_of_clusters is a String integer ("1", "2", etc)
+    color_one, color_two, etc are dict of fitted color cluster values
+
+    {
+        image_name:
+            number_of_clusters: [
+                {"r": 123, "g": 456, "b": 789},
+                ...
+           ]
+    }
+
+    :k_means: List of tuples of (fitted k_means object, number of clusters)
+        of type [(sklearn.cluster.KMeans, int)]
+    :image_path: Path object to image file
+    :file_path: Path object to output JSON file
+
+
+    :returns: None
+
+    """
+
+    if not image_path.exists():
+        print("save_k_means_json: image_path does not exist")
+        return
+
+    file_data = {}
+    cluster_data = {}
+    for touple in k_means:
+        number_of_clusters = touple[1]
+        centroid_ndarray = touple[0].cluster_centers_
+        centroid_flat_array = []
+        for array in centroid_ndarray:
+            d = {"red": array[0], "green": array[1], "blue": array[2]}
+            centroid_flat_array.append(d)
+
+        cluster_data[number_of_clusters] = centroid_flat_array
+
+    try:
+        if file_path.exists():
+            with open(str(file_path), "r") as json_file:
+                file_data = json.load(json_file)
+    except:
+        print(f"save_k_means_json: error loading json from {file_path}")
+        print(f"did not save json data for {image_path}")
+        return
+
+    file_data[str(image_path)] = cluster_data
+
+    with open(str(file_path), "w") as json_file:
+        json.dump(file_data, json_file, indent=4, sort_keys=True)
+
+
 def get_knee_point(
     x: List[int], y: List[int], sensitivity: float, curvature: str, slope: str
 ) -> int:
@@ -133,34 +193,40 @@ def plot_k_means_pie_chart(k_means, file_name):
     plt.clf()
 
 
-def main(directory, plot_directory):
+def main(directory, plot_directory, saved_color_clusters_file):
     """Color cluster images with k-means and persist centroid pie charts
 
-    :directory: Directory containing images to be processed
-    :plot_directory: Directory to save plots (without trailing /)
+    :directory: str Directory containing images to be processed
+    :plot_directory: str Directory to save plots (without trailing /)
+    :saved_color_clusters_file: str relative path to JSON file containing
+     data for images that have already been processed
     :returns: None
 
     """
+
+    json_dict = {}
+    try:
+        if Path(saved_color_clusters_file).exists():
+            with open(saved_color_clusters_file, "r") as json_file:
+                json_dict = json.load(json_file)
+                print("found json colors file")
+    except:
+        print(f"error opening {saved_color_clusters_file}")
+
     paths = listdir(directory)
     for path in paths:
+        image_path = f"{IMAGES_DIRECTORY}{path}"
+        if image_path in json_dict:
+            print(f"Found {image_path} in json colors file, skipping...")
+            continue
+
         file_stem = Path(path).stem
-        image = load_image(path=f"{IMAGES_DIRECTORY}{path}")
+        image = load_image(path=image_path)
         k_means_list = fit_k_means_for_range(image, 1, 10)
-        print(k_means_list)
-        numbers_of_clusters, inertias = get_numbers_of_clusters_and_inertias(
-            k_means_list
-        )
-        plot_line_chart(
-            numbers_of_clusters,
-            inertias,
-            file_name=f"{plot_directory}/{file_stem}-line.png",
-        )
-        knee = get_knee_point(
-            x=numbers_of_clusters,
-            y=inertias,
-            sensitivity=5.0,
-            curvature="convex",
-            slope="decreasing",
+        save_k_means_json(
+            k_means=k_means_list,
+            image_path=Path(image_path),
+            file_path=Path(SAVED_COLOR_CLUSTERS_FILE),
         )
         print(knee)
         k_means = k_means_list[knee - 1 + 2][0]
@@ -172,4 +238,4 @@ def main(directory, plot_directory):
 
 
 if __name__ == "__main__":
-    main(IMAGES_DIRECTORY, PLOTS_DIRECTORY)
+    main(IMAGES_DIRECTORY, PLOTS_DIRECTORY, SAVED_COLOR_CLUSTERS_FILE)
