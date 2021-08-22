@@ -1,4 +1,4 @@
-{
+export default {
     "../../data/images/default-redlands.png": {
         "1": [
             {
