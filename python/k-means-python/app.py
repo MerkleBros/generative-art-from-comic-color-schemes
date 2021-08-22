@@ -228,8 +228,21 @@ def main(directory, plot_directory, saved_color_clusters_file):
             image_path=Path(image_path),
             file_path=Path(SAVED_COLOR_CLUSTERS_FILE),
         )
-        print(knee)
-        k_means = k_means_list[knee - 1 + 2][0]
+        # numbers_of_clusters, inertias = get_numbers_of_clusters_and_inertias(
+        #     k_means_list
+        # )
+        # plot_line_chart(
+        #     numbers_of_clusters,
+        #     inertias,
+        #     file_name=f"{plot_directory}/{file_stem}-line.png",
+        # )
+        # knee = get_knee_point(
+        #     x=numbers_of_clusters,
+        #     y=inertias,
+        #     sensitivity=5.0,
+        #     curvature="convex",
+        #     slope="decreasing",
+        # )
         for k, i in k_means_list:
 
             plot_k_means_pie_chart(
